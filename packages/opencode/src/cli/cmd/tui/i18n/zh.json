@@ -772,5 +772,7 @@
   "whichkey.toggle_layout_desc": "在停靠和浮层模式之间切换快捷键面板",
   "whichkey.toggle_pending": "切换待处理按键预览",
   "whichkey.toggle_pending_desc": "在浮层模式下自动显示待处理按键序列的快捷键",
-  "whichkey.unknown": "Unknown"
+  "whichkey.unknown": "Unknown",
+  "agent.name.build": "构建",
+  "agent.name.plan": "规划"
 }

@@ -1570,7 +1570,7 @@ export function Prompt(props: PromptProps) {
                   {(agent) => (
                     <>
                       <text fg={fadeColor(highlight(), agentMetaAlpha())}>
-                        {store.mode === "shell" ? t("prompt.shell_label") : Locale.titlecase(agent().name)}
+                        {store.mode === "shell" ? t("prompt.shell_label") : t("agent.name." + agent().name)}
                       </text>
                       <Show when={store.mode === "normal"}>
                         <box flexDirection="row" gap={1}>

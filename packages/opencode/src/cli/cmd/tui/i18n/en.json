@@ -772,5 +772,7 @@
   "whichkey.toggle_layout_desc": "Toggle key bindings layout",
   "whichkey.toggle_pending": "Toggle pending key preview",
   "whichkey.toggle_pending_desc": "Toggle pending key preview",
-  "whichkey.unknown": "Unknown"
+  "whichkey.unknown": "Unknown",
+  "agent.name.build": "Build",
+  "agent.name.plan": "Plan"
 }
