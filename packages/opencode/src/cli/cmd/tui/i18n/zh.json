@@ -780,5 +780,8 @@
   "tips.tip_2_prefix": "使用",
   "tips.tip_2_suffix": "在 {count} 个内置主题之间切换",
   "tips.tip_4_prefix": "使用",
-  "tips.tip_4_suffix": "列出、固定和继续会话"
+  "tips.tip_4_suffix": "列出、固定和继续会话",
+  "prompt.hint.agents": "智能体",
+  "prompt.hint.commands": "命令",
+  "prompt.hint.exit_shell": "退出 Shell 模式"
 }
