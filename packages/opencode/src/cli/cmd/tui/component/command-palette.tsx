@@ -1,6 +1,7 @@
 import { createMemo } from "solid-js"
 import { DialogSelect, type DialogSelectRef } from "@tui/ui/dialog-select"
 import { type DialogContext } from "@tui/ui/dialog"
+import { t } from "@tui/i18n"
 import {
   COMMAND_PALETTE_COMMAND,
   formatKeyBindings,
@@ -69,11 +70,11 @@ export function CommandPaletteDialog() {
         .map((option) => ({
           ...option,
           value: `suggested:${option.value}`,
-          category: "Suggested",
+          category: t("dialog.command_palette.suggested"),
         })),
       ...options(),
     ]
   }
 
-  return <DialogSelect ref={(value) => (ref = value)} title="Commands" options={list()} />
+  return <DialogSelect ref={(value) => (ref = value)} title={t("dialog.command_palette.title")} options={list()} />
 }

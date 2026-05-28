@@ -5,17 +5,18 @@ import { fileURLToPath } from "url"
 import { DialogSelect, type DialogSelectOption } from "@tui/ui/dialog-select"
 import { Show, createEffect, createMemo, createSignal } from "solid-js"
 import { useBindings } from "../../keymap"
+import { t } from "@tui/i18n"
 
 const id = "internal:plugin-manager"
 
 function state(api: TuiPluginApi, item: TuiPluginStatus) {
   if (!item.enabled) {
-    return <span style={{ fg: api.theme.current.textMuted }}>disabled</span>
+    return <span style={{ fg: api.theme.current.textMuted }}>{t("plugins.disabled")}</span>
   }
 
   return (
     <span style={{ fg: item.active ? api.theme.current.success : api.theme.current.error }}>
-      {item.active ? "active" : "inactive"}
+      {item.active ? t("plugins.active") : t("plugins.inactive")}
     </span>
   )
 }
@@ -27,8 +28,8 @@ function source(spec: string) {
 
 function meta(item: TuiPluginStatus, width: number) {
   if (item.source === "internal") {
-    if (width >= 120) return "Built-in plugin"
-    return "Built-in"
+    if (width >= 120) return t("plugins.built_in_plugin")
+    return t("plugins.built_in")
   }
   const next = source(item.spec)
   if (next) return next
@@ -41,23 +42,23 @@ function Install(props: { api: TuiPluginApi }) {
 
   useBindings(() => ({
     enabled: !busy(),
-    bindings: [{ key: "tab", desc: "Toggle install scope", group: "Plugins", cmd: () => setGlobal((value) => !value) }],
+    bindings: [{ key: "tab", desc: t("plugins.toggle_scope"), group: t("plugins.group"), cmd: () => setGlobal((value) => !value) }],
   }))
 
   return (
     <props.api.ui.DialogPrompt
-      title="Install plugin"
-      placeholder="npm package name"
+      title={t("plugins.install_plugin")}
+      placeholder={t("plugins.npm_package_name")}
       busy={busy()}
-      busyText="Installing plugin..."
+      busyText={t("plugins.installing")}
       description={() => (
         <box flexDirection="row" gap={1}>
-          <text fg={props.api.theme.current.textMuted}>scope:</text>
+          <text fg={props.api.theme.current.textMuted}>{t("plugins.scope")}</text>
           <text fg={busy() ? props.api.theme.current.textMuted : props.api.theme.current.text}>
-            {global() ? "global" : "local"}
+            {global() ? t("plugins.global") : t("plugins.local")}
           </text>
           <Show when={!busy()}>
-            <text fg={props.api.theme.current.textMuted}>(tab toggle)</text>
+            <text fg={props.api.theme.current.textMuted}>({t("plugins.tab_toggle")})</text>
           </Show>
         </box>
       )}
@@ -67,7 +68,7 @@ function Install(props: { api: TuiPluginApi }) {
         if (!mod) {
           props.api.ui.toast({
             variant: "error",
-            message: "Plugin package name is required",
+            message: t("plugins.package_required"),
           })
           return
         }
@@ -84,7 +85,7 @@ function Install(props: { api: TuiPluginApi }) {
               if (out.missing) {
                 props.api.ui.toast({
                   variant: "info",
-                  message: "Check npm registry/auth settings and try again.",
+                  message: t("plugins.check_npm"),
                 })
               }
               show(props.api)
@@ -93,12 +94,12 @@ function Install(props: { api: TuiPluginApi }) {
 
             props.api.ui.toast({
               variant: "success",
-              message: `Installed ${mod} (${global() ? "global" : "local"}: ${out.dir})`,
+              message: t("plugins.installed_msg", { mod, scope: global() ? t("plugins.global") : t("plugins.local"), dir: out.dir }),
             })
             if (!out.tui) {
               props.api.ui.toast({
                 variant: "info",
-                message: "Package has no TUI target to load in this app.",
+                message: t("plugins.no_tui_target"),
               })
               show(props.api)
               return
@@ -108,7 +109,7 @@ function Install(props: { api: TuiPluginApi }) {
               if (!ok) {
                 props.api.ui.toast({
                   variant: "warning",
-                  message: "Installed plugin, but runtime load failed. See console/logs; restart TUI to retry.",
+                  message: t("plugins.runtime_load_failed"),
                 })
                 show(props.api)
                 return
@@ -116,7 +117,7 @@ function Install(props: { api: TuiPluginApi }) {
 
               props.api.ui.toast({
                 variant: "success",
-                message: `Loaded ${mod} in current session.`,
+                message: t("plugins.loaded_msg", { mod }),
               })
               show(props.api)
             })
@@ -136,7 +137,7 @@ function row(api: TuiPluginApi, item: TuiPluginStatus, width: number): DialogSel
   return {
     title: item.id,
     value: item.id,
-    category: item.source === "internal" ? "Internal" : "External",
+    category: item.source === "internal" ? t("plugins.internal") : t("plugins.external"),
     description: meta(item, width),
     footer: state(api, item),
     disabled: item.id === id,
@@ -188,7 +189,7 @@ function View(props: { api: TuiPluginApi }) {
         if (!ok) {
           props.api.ui.toast({
             variant: "error",
-            message: `Failed to update plugin ${item.id}`,
+            message: t("plugins.failed_update", { id: item.id }),
           })
         }
         setList(props.api.plugins.list())
@@ -200,13 +201,13 @@ function View(props: { api: TuiPluginApi }) {
 
   return (
     <DialogSelect
-      title="Plugins"
+      title={t("plugins.title")}
       options={rows()}
       current={cur()}
       onMove={(item) => setCur(item.value)}
       actions={[
         {
-          title: "toggle",
+          title: t("plugins.toggle"),
           command: "plugins.toggle",
           disabled: lock(),
           onTrigger: (item) => {
@@ -215,7 +216,7 @@ function View(props: { api: TuiPluginApi }) {
           },
         },
         {
-          title: "install",
+          title: t("plugins.install"),
           command: "dialog.plugins.install",
           disabled: lock(),
           onTrigger: () => {
@@ -240,8 +241,8 @@ const tui: TuiPlugin = async (api) => {
     commands: [
       {
         name: "plugins.list",
-        title: "Plugins",
-        category: "System",
+        title: t("plugins.title"),
+        category: t("category.system"),
         namespace: "palette",
         run() {
           show(api)
@@ -249,8 +250,8 @@ const tui: TuiPlugin = async (api) => {
       },
       {
         name: "plugins.install",
-        title: "Install plugin",
-        category: "System",
+        title: t("plugins.install_plugin"),
+        category: t("category.system"),
         namespace: "palette",
         run() {
           showInstall(api)

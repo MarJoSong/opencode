@@ -3,6 +3,7 @@ import type { InternalTuiPlugin } from "../../plugin/internal"
 import { createMemo, Show } from "solid-js"
 import { Tips } from "./tips-view"
 import { useBindings } from "../../keymap"
+import { t } from "@tui/i18n"
 
 const id = "internal:home-tips"
 
@@ -11,8 +12,8 @@ function View(props: { api: TuiPluginApi; hidden: boolean; show: boolean; connec
     commands: [
       {
         name: "tips.toggle",
-        title: props.hidden ? "Show tips" : "Hide tips",
-        category: "System",
+        title: props.hidden ? t("tips.show") : t("tips.hide"),
+        category: t("category.system"),
         namespace: "palette",
         run() {
           props.api.kv.set("tips_hidden", !props.api.kv.get("tips_hidden", false))

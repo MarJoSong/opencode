@@ -61,6 +61,7 @@ import { Flag } from "@opencode-ai/core/flag/flag"
 import { type WorkspaceStatus } from "../workspace-label"
 import { OPENCODE_BASE_MODE, useBindings, useCommandShortcut, useLeaderActive, useOpencodeKeymap } from "../../keymap"
 import { useTuiConfig } from "../../context/tui-config"
+import { t } from "@tui/i18n"
 
 export type PromptProps = {
   sessionID?: string
@@ -210,7 +211,7 @@ export function Prompt(props: PromptProps) {
   }
 
   function showWarpNotice(name: string) {
-    setWarpNotice(`Warped to ${name}`)
+    setWarpNotice(t("prompt.warped_to", { name }))
     setTimeout(() => setWarpNotice(undefined), 4000)
   }
 
@@ -223,7 +224,7 @@ export function Prompt(props: PromptProps) {
       selectWorkspace(undefined)
       setCreatingWorkspace(false)
       toast.show({
-        message: "Creating workspace failed",
+        message: t("prompt.workspace_create_failed"),
         variant: "error",
       })
       return
@@ -288,7 +289,7 @@ export function Prompt(props: PromptProps) {
   function promptModelWarning() {
     toast.show({
       variant: "warning",
-      message: "Connect a provider to send prompts",
+      message: t("prompt.connect_provider_warning"),
       duration: 3000,
     })
     if (sync.data.provider.length === 0) {
@@ -405,9 +406,9 @@ export function Prompt(props: PromptProps) {
   const promptCommands = createMemo(() =>
     [
       {
-        title: "Clear prompt",
+        title: t("prompt.clear_title"),
         name: "prompt.clear",
-        category: "Prompt",
+        category: t("prompt.category"),
         hidden: true,
         run: () => {
           clearPrompt()
@@ -415,9 +416,9 @@ export function Prompt(props: PromptProps) {
         },
       },
       {
-        title: "Submit prompt",
+        title: t("prompt.submit_title"),
         name: "prompt.submit",
-        category: "Prompt",
+        category: t("prompt.category"),
         hidden: true,
         run: async () => {
           if (!input.focused) return
@@ -428,9 +429,9 @@ export function Prompt(props: PromptProps) {
         },
       },
       {
-        title: "Remove editor context",
+        title: t("prompt.remove_editor_context_title"),
         name: "prompt.editor_context.clear",
-        category: "Prompt",
+        category: t("prompt.category"),
         enabled: Boolean(editorContext()),
         run: () => {
           dismissEditorContext()
@@ -438,9 +439,9 @@ export function Prompt(props: PromptProps) {
         },
       },
       {
-        title: "Paste",
+        title: t("common.paste"),
         name: "prompt.paste",
-        category: "Prompt",
+        category: t("prompt.category"),
         hidden: true,
         run: async (ctx: CommandContext<Renderable, KeyEvent>) => {
           ctx.event.preventDefault()
@@ -460,9 +461,9 @@ export function Prompt(props: PromptProps) {
         },
       },
       {
-        title: "Interrupt session",
+        title: t("prompt.interrupt_session_title"),
         name: "session.interrupt",
-        category: "Session",
+        category: t("prompt.session_category"),
         hidden: true,
         enabled: status().type !== "idle",
         run: () => {
@@ -491,8 +492,8 @@ export function Prompt(props: PromptProps) {
         },
       },
       {
-        title: "Open editor",
-        category: "Session",
+        title: t("prompt.open_editor_title"),
+        category: t("prompt.session_category"),
         name: "prompt.editor",
         slashName: "editor",
         run: async () => {
@@ -582,9 +583,9 @@ export function Prompt(props: PromptProps) {
         },
       },
       {
-        title: "Skills",
+        title: t("prompt.skills_title"),
         name: "prompt.skills",
-        category: "Prompt",
+        category: t("prompt.category"),
         slashName: "skills",
         run: () => {
           dialog.replace(() => (
@@ -602,10 +603,10 @@ export function Prompt(props: PromptProps) {
         },
       },
       {
-        title: "Warp",
-        desc: "Change the workspace for the session",
+        title: t("prompt.warp_title"),
+        desc: t("prompt.warp_description"),
         name: "workspace.set",
-        category: "Session",
+        category: t("prompt.session_category"),
         enabled: Flag.OPENCODE_EXPERIMENTAL_WORKSPACES,
         slashName: "warp",
         run: () => {
@@ -802,9 +803,9 @@ export function Prompt(props: PromptProps) {
   const stashCommands = createMemo(() =>
     [
       {
-        title: "Stash prompt",
+        title: t("prompt.stash_title"),
         name: "prompt.stash",
-        category: "Prompt",
+        category: t("prompt.category"),
         enabled: !!store.prompt.input,
         run: () => {
           if (!store.prompt.input) return
@@ -820,9 +821,9 @@ export function Prompt(props: PromptProps) {
         },
       },
       {
-        title: "Stash pop",
+        title: t("prompt.stash_pop_title"),
         name: "prompt.stash.pop",
-        category: "Prompt",
+        category: t("prompt.category"),
         enabled: stash.list().length > 0,
         run: () => {
           const entry = stash.pop()
@@ -836,9 +837,9 @@ export function Prompt(props: PromptProps) {
         },
       },
       {
-        title: "Stash list",
+        title: t("prompt.stash_list_title"),
         name: "prompt.stash.list",
-        category: "Prompt",
+        category: t("prompt.category"),
         enabled: stash.list().length > 0,
         run: () => {
           dialog.replace(() => (
@@ -895,7 +896,7 @@ export function Prompt(props: PromptProps) {
       bindings: [
         {
           key: "!",
-          desc: "Shell mode",
+          desc: t("prompt.shell_mode_desc"),
           group: "Prompt",
           cmd: () => {
             setStore("placeholder", randomIndex(shell().length))
@@ -910,7 +911,7 @@ export function Prompt(props: PromptProps) {
     return {
       target: inputTarget,
       enabled: inputTarget() !== undefined && store.mode === "shell",
-      bindings: [{ key: "escape", desc: "Exit shell mode", group: "Prompt", cmd: () => setStore("mode", "normal") }],
+      bindings: [{ key: "escape", desc: t("prompt.exit_shell_mode_desc"), group: "Prompt", cmd: () => setStore("mode", "normal") }],
     }
   })
 
@@ -921,7 +922,7 @@ export function Prompt(props: PromptProps) {
         cursorVersion()
         return inputTarget() !== undefined && store.mode === "shell" && input?.visualCursor.offset === 0
       })(),
-      bindings: [{ key: "backspace", desc: "Exit shell mode", group: "Prompt", cmd: () => setStore("mode", "normal") }],
+      bindings: [{ key: "backspace", desc: t("prompt.exit_shell_mode_desc"), group: "Prompt", cmd: () => setStore("mode", "normal") }],
     }
   })
 
@@ -935,8 +936,8 @@ export function Prompt(props: PromptProps) {
       commands: [
         {
           name: "prompt.history.previous",
-          title: "Previous prompt history",
-          category: "Prompt",
+          title: t("prompt.history_previous_title"),
+          category: t("prompt.category"),
           run() {
             if (input.cursorOffset !== 0) {
               if (input.scrollY + input.visualCursor.visualRow === 0) input.cursorOffset = 0
@@ -967,8 +968,8 @@ export function Prompt(props: PromptProps) {
       commands: [
         {
           name: "prompt.history.next",
-          title: "Next prompt history",
-          category: "Prompt",
+          title: t("prompt.history_next_title"),
+          category: t("prompt.category"),
           run() {
             if (input.cursorOffset !== input.plainText.length) {
               if (
@@ -1086,7 +1087,7 @@ export function Prompt(props: PromptProps) {
         console.log("Creating a session failed:", res.error)
 
         toast.show({
-          message: "Creating a session failed. Open console for more details.",
+          message: t("prompt.session_create_failed"),
           variant: "error",
         })
 
@@ -1415,10 +1416,10 @@ export function Prompt(props: PromptProps) {
     if (store.mode === "shell") {
       if (!shell().length) return undefined
       const example = shell()[store.placeholder % shell().length]
-      return `Run a command... "${example}"`
+      return t("prompt.shell_placeholder", { example })
     }
     if (!list().length) return undefined
-    return `Ask anything... "${list()[store.placeholder % list().length]}"`
+    return t("prompt.normal_placeholder", { example: list()[store.placeholder % list().length] })
   })
 
   const workspaceLabel = createMemo<
@@ -1569,7 +1570,7 @@ export function Prompt(props: PromptProps) {
                   {(agent) => (
                     <>
                       <text fg={fadeColor(highlight(), agentMetaAlpha())}>
-                        {store.mode === "shell" ? "Shell" : Locale.titlecase(agent().name)}
+                        {store.mode === "shell" ? t("prompt.shell_label") : Locale.titlecase(agent().name)}
                       </text>
                       <Show when={store.mode === "normal"}>
                         <box flexDirection="row" gap={1}>

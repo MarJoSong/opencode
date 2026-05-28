@@ -2,6 +2,7 @@ import type { TuiPlugin, TuiPluginApi } from "@opencode-ai/plugin/tui"
 import type { InternalTuiPlugin } from "../../plugin/internal"
 import { createMemo, Match, Show, Switch } from "solid-js"
 import { Global } from "@opencode-ai/core/global"
+import { t } from "@tui/i18n"
 
 const id = "internal:home-footer"
 
@@ -37,7 +38,7 @@ function Mcp(props: { api: TuiPluginApi }) {
               <span style={{ fg: count() > 0 ? theme().success : theme().textMuted }}>⊙ </span>
             </Match>
           </Switch>
-          {count()} MCP
+          {count()} {t("footer.mcp")}
         </text>
         <text fg={theme().textMuted}>/status</text>
       </box>

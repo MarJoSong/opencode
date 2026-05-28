@@ -4,6 +4,7 @@ import { For } from "solid-js"
 import { useTheme } from "../context/theme"
 import { useDialog } from "../ui/dialog"
 import { useBindings } from "../keymap"
+import { t } from "@tui/i18n"
 
 export function DialogWorkspaceUnavailable(props: { onRestore?: () => boolean | void | Promise<boolean | void> }) {
   const dialog = useDialog()
@@ -24,28 +25,28 @@ export function DialogWorkspaceUnavailable(props: { onRestore?: () => boolean | 
   }
 
   useBindings(() => ({
-    bindings: [
-      { key: "return", desc: "Confirm workspace option", group: "Dialog", cmd: () => void confirm() },
-      { key: "left", desc: "Cancel workspace restore", group: "Dialog", cmd: () => setStore("active", "cancel") },
-      { key: "right", desc: "Restore workspace", group: "Dialog", cmd: () => setStore("active", "restore") },
-    ],
+      bindings: [
+        { key: "return", desc: t("dialog.workspace_unavailable.confirm_desc"), group: "Dialog", cmd: () => void confirm() },
+        { key: "left", desc: t("dialog.workspace_unavailable.cancel_desc"), group: "Dialog", cmd: () => setStore("active", "cancel") },
+        { key: "right", desc: t("dialog.workspace_unavailable.restore_desc"), group: "Dialog", cmd: () => setStore("active", "restore") },
+      ],
   }))
 
   return (
     <box paddingLeft={2} paddingRight={2} gap={1}>
       <box flexDirection="row" justifyContent="space-between">
         <text attributes={TextAttributes.BOLD} fg={theme.text}>
-          Workspace Unavailable
+          {t("dialog.workspace_unavailable.title")}
         </text>
         <text fg={theme.textMuted} onMouseUp={() => dialog.clear()}>
           esc
         </text>
       </box>
       <text fg={theme.textMuted} wrapMode="word">
-        This session is attached to a workspace that is no longer available.
+        {t("dialog.workspace_unavailable.description")}
       </text>
       <text fg={theme.textMuted} wrapMode="word">
-        Would you like to restore this session into a new workspace?
+        {t("dialog.workspace_unavailable.prompt")}
       </text>
       <box flexDirection="row" justifyContent="flex-end" paddingBottom={1} gap={1}>
         <For each={options}>

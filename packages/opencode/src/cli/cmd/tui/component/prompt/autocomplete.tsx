@@ -21,6 +21,7 @@ import { useBindings, useCommandSlashes, useOpencodeModeStack } from "../../keym
 import { Reference } from "@/reference/reference"
 import { ConfigReference } from "@/config/reference"
 import { displayCharAt, mentionTriggerIndex } from "@/cli/cmd/prompt-display"
+import { t } from "@tui/i18n"
 
 function removeLineRange(input: string) {
   const hashIndex = input.lastIndexOf("#")
@@ -835,7 +836,7 @@ export function Autocomplete(props: {
           each={options()}
           fallback={
             <box paddingLeft={1} paddingRight={1}>
-              <text fg={theme.textMuted}>No matching items</text>
+              <text fg={theme.textMuted}>{t("autocomplete.no_matching_items")}</text>
             </box>
           }
         >

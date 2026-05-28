@@ -5,6 +5,7 @@ import { Locale } from "@/util/locale"
 import { useTheme } from "../context/theme"
 import { usePromptStash, type StashEntry } from "./prompt/stash"
 import { useCommandShortcut } from "../keymap"
+import { t } from "@tui/i18n"
 
 function getRelativeTime(timestamp: number): string {
   const now = Date.now()
@@ -14,10 +15,10 @@ function getRelativeTime(timestamp: number): string {
   const hours = Math.floor(minutes / 60)
   const days = Math.floor(hours / 24)
 
-  if (seconds < 60) return "just now"
-  if (minutes < 60) return `${minutes}m ago`
-  if (hours < 24) return `${hours}h ago`
-  if (days < 7) return `${days}d ago`
+  if (seconds < 60) return t("time.just_now")
+  if (minutes < 60) return t("time.minutes_ago", { n: minutes })
+  if (hours < 24) return t("time.hours_ago", { n: hours })
+  if (days < 7) return t("time.days_ago", { n: days })
   return Locale.datetime(timestamp)
 }
 
@@ -42,11 +43,11 @@ export function DialogStash(props: { onSelect: (entry: StashEntry) => void }) {
         const isDeleting = toDelete() === index
         const lineCount = (entry.input.match(/\n/g)?.length ?? 0) + 1
         return {
-          title: isDeleting ? `Press ${deleteHint()} again to confirm` : getStashPreview(entry.input),
+          title: isDeleting ? t("dialog.stash.confirm_delete", { key: deleteHint() }) : getStashPreview(entry.input),
           bg: isDeleting ? theme.error : undefined,
           value: index,
           description: getRelativeTime(entry.timestamp),
-          footer: lineCount > 1 ? `~${lineCount} lines` : undefined,
+          footer: lineCount > 1 ? t("dialog.stash.lines", { n: lineCount }) : undefined,
         }
       })
       .toReversed()
@@ -54,7 +55,7 @@ export function DialogStash(props: { onSelect: (entry: StashEntry) => void }) {
 
   return (
     <DialogSelect
-      title="Stash"
+      title={t("dialog.stash.title")}
       options={options()}
       onMove={() => {
         setToDelete(undefined)
@@ -71,7 +72,7 @@ export function DialogStash(props: { onSelect: (entry: StashEntry) => void }) {
       actions={[
         {
           command: "stash.delete",
-          title: "delete",
+          title: t("common.delete"),
           onTrigger: (option) => {
             if (toDelete() === option.value) {
               stash.remove(option.value)

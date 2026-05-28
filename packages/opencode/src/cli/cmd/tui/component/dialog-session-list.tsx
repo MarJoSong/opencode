@@ -18,6 +18,7 @@ import { errorMessage } from "@/util/error"
 import { DialogSessionDeleteFailed } from "./dialog-session-delete-failed"
 import { WorkspaceLabel } from "./workspace-label"
 import { useCommandShortcut } from "../keymap"
+import { t } from "@tui/i18n"
 
 export function DialogSessionList() {
   const dialog = useDialog()
@@ -59,7 +60,7 @@ export function DialogSessionList() {
         const workspace = result?.data
         if (!workspace) {
           toast.show({
-            message: `Failed to create workspace: ${errorMessage(result?.error ?? "no response")}`,
+            message: t("dialog.session_list.workspace_create_failed", { error: errorMessage(result?.error ?? "no response") }),
             variant: "error",
           })
           return
@@ -93,7 +94,7 @@ export function DialogSessionList() {
           if (result.error) {
             toast.show({
               variant: "error",
-              title: "Failed to delete workspace",
+              title: t("dialog.session_list.workspace_delete_failed_title"),
               message: errorMessage(result.error),
             })
             return false
@@ -140,7 +141,7 @@ export function DialogSessionList() {
   })
   const quickSwitchFooterHints = createMemo(() => {
     const hint = quickSwitchHint()
-    return hint && local.session.slots().length > 0 ? [{ title: "switch", label: hint }] : []
+    return hint && local.session.slots().length > 0 ? [{ title: t("dialog.session_list.switch"), label: hint }] : []
   })
 
   const options = createMemo(() => {
@@ -190,7 +191,7 @@ export function DialogSessionList() {
           ? () => <text fg={theme.accent}>{slot}</text>
           : undefined
       return {
-        title: isDeleting ? `Press ${deleteHint()} again to confirm` : x.title,
+        title: isDeleting ? t("dialog.session_list.confirm_delete", { key: deleteHint() }) : x.title,
         bg: isDeleting ? theme.error : undefined,
         value: x.id,
         category,
@@ -205,11 +206,11 @@ export function DialogSessionList() {
         const x = sessionMap.get(id)
         if (!x) return undefined
         const label = new Date(x.time.updated).toDateString()
-        return buildOption(id, label === today ? "Today" : label)
+        return buildOption(id, label === today ? t("dialog.session_list.today") : label)
       })
       .filter((x) => x !== undefined)
 
-    return [...pinned.map((id) => buildOption(id, "Pinned")).filter((x) => x !== undefined), ...remaining]
+    return [...pinned.map((id) => buildOption(id, t("dialog.session_list.pinned"))).filter((x) => x !== undefined), ...remaining]
   })
 
   onMount(() => {
@@ -218,7 +219,7 @@ export function DialogSessionList() {
 
   return (
     <DialogSelect
-      title="Sessions"
+      title={t("dialog.session_list.title")}
       options={options()}
       skipFilter={true}
       current={currentSessionID()}
@@ -236,14 +237,14 @@ export function DialogSessionList() {
       actions={[
         {
           command: "session.pin.toggle",
-          title: "pin/unpin",
+          title: t("dialog.session_list.pin_toggle"),
           onTrigger: (option: { value: string }) => {
             local.session.togglePin(option.value)
           },
         },
         {
           command: "session.delete",
-          title: "delete",
+          title: t("common.delete"),
           onTrigger: async (option) => {
             if (toDelete() === option.value) {
               const session = sessions().find((item) => item.id === option.value)
@@ -259,7 +260,7 @@ export function DialogSessionList() {
                   } else {
                     toast.show({
                       variant: "error",
-                      title: "Failed to delete session",
+                      title: t("dialog.session_list.delete_failed_title"),
                       message: errorMessage(result.error),
                     })
                   }
@@ -291,7 +292,7 @@ export function DialogSessionList() {
         },
         {
           command: "session.rename",
-          title: "rename",
+          title: t("dialog.session_list.rename"),
           onTrigger: async (option) => {
             dialog.replace(() => <DialogSessionRename session={option.value} />)
           },

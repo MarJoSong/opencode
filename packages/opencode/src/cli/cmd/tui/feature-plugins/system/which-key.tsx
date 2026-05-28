@@ -6,6 +6,7 @@ import { useBindings, useKeymapSelector } from "../../keymap"
 import type { ActiveKey } from "@opentui/keymap"
 import type { TuiPlugin, TuiPluginApi } from "@opencode-ai/plugin/tui"
 import type { InternalTuiPlugin } from "../../plugin/internal"
+import { t } from "@tui/i18n"
 
 const command = {
   toggle: "which-key.toggle",
@@ -46,7 +47,7 @@ const MAX_PANEL_HEIGHT = 16
 const PANEL_TOP_PADDING = 1
 const FOOTER_HEIGHT = 1
 const FOOTER_MARGIN = 1
-const UNKNOWN = "Unknown"
+const UNKNOWN = t("whichkey.unknown")
 
 type Layout = "dock" | "overlay"
 
@@ -119,7 +120,7 @@ function activeKeyLabel(active: ActiveKey<Renderable, KeyEvent>) {
 }
 
 function activeKeyGroup(active: ActiveKey<Renderable, KeyEvent>) {
-  if (active.continues) return "System"
+  if (active.continues) return t("category.system")
   return text(active.commandAttrs?.category) ?? text(active.bindingAttrs?.group) ?? UNKNOWN
 }
 
@@ -175,7 +176,7 @@ function HomeHint(props: { api: TuiPluginApi }) {
   return (
     <box width="100%" maxWidth={75} alignItems="center" paddingTop={1} flexShrink={0}>
       <text fg={look().muted} wrapMode="none">
-        Show keyboard shortcuts with <span style={{ fg: look().subtle }}>{trigger() || command.toggle}</span>
+        {t("whichkey.show_shortcuts")} <span style={{ fg: look().subtle }}>{trigger() || command.toggle}</span>
       </text>
     </box>
   )
@@ -289,72 +290,72 @@ function WhichKeyPanel(props: {
     commands: [
       {
         name: command.groupPrevious,
-        title: "Previous key binding group",
-        desc: "Show the previous which-key group",
-        category: "System",
+        title: t("whichkey.prev_group"),
+        desc: t("whichkey.prev_group_desc"),
+        category: t("category.system"),
         run() {
           moveGroup(-1)
         },
       },
       {
         name: command.groupNext,
-        title: "Next key binding group",
-        desc: "Show the next which-key group",
-        category: "System",
+        title: t("whichkey.next_group"),
+        desc: t("whichkey.next_group_desc"),
+        category: t("category.system"),
         run() {
           moveGroup(1)
         },
       },
       {
         name: command.scrollUp,
-        title: "Scroll key bindings up",
-        desc: "Scroll the which-key panel up",
-        category: "System",
+        title: t("whichkey.scroll_up"),
+        desc: t("whichkey.scroll_up_desc"),
+        category: t("category.system"),
         run() {
           scroll(-columns())
         },
       },
       {
         name: command.scrollDown,
-        title: "Scroll key bindings down",
-        desc: "Scroll the which-key panel down",
-        category: "System",
+        title: t("whichkey.scroll_down"),
+        desc: t("whichkey.scroll_down_desc"),
+        category: t("category.system"),
         run() {
           scroll(columns())
         },
       },
       {
         name: command.pageUp,
-        title: "Page key bindings up",
-        desc: "Page the which-key panel up",
-        category: "System",
+        title: t("whichkey.page_up"),
+        desc: t("whichkey.page_up_desc"),
+        category: t("category.system"),
         run() {
           scroll(-pageSize())
         },
       },
       {
         name: command.pageDown,
-        title: "Page key bindings down",
-        desc: "Page the which-key panel down",
-        category: "System",
+        title: t("whichkey.page_down"),
+        desc: t("whichkey.page_down_desc"),
+        category: t("category.system"),
         run() {
           scroll(pageSize())
         },
       },
       {
         name: command.home,
-        title: "First key binding",
-        desc: "Jump to the first which-key binding",
-        category: "System",
+        title: t("whichkey.first"),
+        desc: t("whichkey.first_desc"),
+        category: t("category.system"),
         run() {
           setOffset(0)
         },
       },
       {
         name: command.end,
-        title: "Last key binding",
-        desc: "Jump to the last which-key binding",
-        category: "System",
+        title: t("whichkey.last"),
+        desc: t("whichkey.last_desc"),
+        category: t("category.system"),
         run() {
           setOffset(maxOffset())
         },
@@ -455,7 +456,7 @@ function WhichKeyPanel(props: {
           <box height={TAB_CONTENT_GAP} flexShrink={0} />
         </Show>
         <box height={rows()} flexShrink={0} flexDirection="column">
-          <Show when={shown().length > 0} fallback={<text fg={look().muted}>No reachable bindings</text>}>
+          <Show when={shown().length > 0} fallback={<text fg={look().muted}>{t("whichkey.no_bindings")}</text>}>
             <For each={rowIndexes()}>
               {(row) => (
                 <box width="100%" flexDirection="row" justifyContent="center" gap={COLUMN_GAP}>
@@ -514,7 +515,7 @@ function WhichKeyPanel(props: {
           <box width="100%" flexDirection="row" justifyContent="space-between" flexShrink={0}>
             <box>
               <text fg={look().text} wrapMode="none">
-                toggle <span style={{ fg: look().subtle }}>{trigger() || command.toggle}</span>
+                {t("whichkey.toggle")} <span style={{ fg: look().subtle }}>{trigger() || command.toggle}</span>
               </text>
             </box>
             <box>
@@ -539,18 +540,18 @@ const tui: TuiPlugin = async (api) => {
     commands: [
       {
         name: command.toggle,
-        title: "Show key bindings",
-        desc: "Toggle which-key overlay",
-        category: "System",
+        title: t("whichkey.show"),
+        desc: t("whichkey.show_desc"),
+        category: t("category.system"),
         run() {
           setPinned((value) => !value)
         },
       },
       {
         name: command.toggleLayout,
-        title: "Toggle key bindings layout",
-        desc: "Switch which-key between dock and overlay mode",
-        category: "System",
+        title: t("whichkey.toggle_layout"),
+        desc: t("whichkey.toggle_layout_desc"),
+        category: t("category.system"),
         run() {
           setMode((value) => {
             const next = value === "dock" ? "overlay" : "dock"
@@ -561,9 +562,9 @@ const tui: TuiPlugin = async (api) => {
       },
       {
         name: command.togglePending,
-        title: "Toggle pending key preview",
-        desc: "Automatically show which-key for pending key sequences in overlay mode",
-        category: "System",
+        title: t("whichkey.toggle_pending"),
+        desc: t("whichkey.toggle_pending_desc"),
+        category: t("category.system"),
         run() {
           setPendingPreview((value) => {
             api.kv.set(KV_PENDING_PREVIEW, !value)

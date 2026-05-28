@@ -15,6 +15,7 @@ import { useToast } from "../ui/toast"
 import { isConsoleManagedProvider } from "@tui/util/provider-origin"
 import { useConnected } from "./use-connected"
 import { useBindings } from "../keymap"
+import { t } from "@tui/i18n"
 
 const PROVIDER_PRIORITY: Record<string, number> = {
   opencode: 0,
@@ -55,20 +56,20 @@ export function providerOptions(list: { id: string; name: string }[]): ProviderO
         value: provider.id,
         providerID: provider.id,
         description: {
-          opencode: "(Recommended)",
-          anthropic: "(API key)",
-          openai: "(ChatGPT Plus/Pro or API key)",
-          "opencode-go": "Low cost subscription for everyone",
+          opencode: t("dialog.provider.recommended"),
+          anthropic: t("dialog.provider.api_key_method"),
+          openai: t("dialog.provider.chatgpt_plus"),
+          "opencode-go": t("dialog.provider.low_cost"),
         }[provider.id],
-        category: provider.id in PROVIDER_PRIORITY ? "Popular" : "Providers",
+        category: provider.id in PROVIDER_PRIORITY ? t("dialog.provider.popular") : t("dialog.provider.providers"),
       })),
     ),
     {
       type: "custom",
-      title: "Other",
+      title: t("dialog.provider.other"),
       value: CUSTOM_PROVIDER_OPTION_VALUE,
-      description: "Custom provider",
-      category: "Providers",
+      description: t("dialog.provider.custom_provider"),
+      category: t("dialog.provider.providers"),
     },
   ]
 }
@@ -88,11 +89,11 @@ export function createDialogProviderOptions() {
   const onboarded = useConnected()
 
   async function promptCustomProviderID(): Promise<string | undefined> {
-    const value = await DialogPrompt.show(dialog, "Other", {
-      placeholder: "Provider id",
+    const value = await DialogPrompt.show(dialog, t("dialog.provider.other"), {
+      placeholder: t("dialog.provider.provider_id_placeholder"),
       description: () => (
         <text fg={theme.textMuted}>
-          This only stores a credential. Configure the provider in opencode.json to use it.
+          {t("dialog.provider.custom_provider_description")}
         </text>
       ),
     })
@@ -103,8 +104,7 @@ export function createDialogProviderOptions() {
 
     toast.show({
       variant: "error",
-      message:
-        "Provider ids must start with a lowercase letter or number and only use lowercase letters, numbers, hyphens, and underscores",
+      message: t("dialog.provider.invalid_id_message"),
     })
     return promptCustomProviderID()
   }
@@ -122,7 +122,7 @@ export function createDialogProviderOptions() {
             async onSelect() {
               const providerID = await promptCustomProviderID()
               if (!providerID) return
-              return dialog.replace(() => <ApiMethod providerID={providerID} title="API key" custom />)
+              return dialog.replace(() => <ApiMethod providerID={providerID} title={t("dialog.provider.api_key")} custom />)
             },
           }
         }
@@ -144,7 +144,7 @@ export function createDialogProviderOptions() {
             const methods = sync.data.provider_auth[providerID] ?? [
               {
                 type: "api",
-                label: "API key",
+                label: t("dialog.provider.api_key"),
               },
             ]
             let index: number | null = 0
@@ -153,7 +153,7 @@ export function createDialogProviderOptions() {
                 dialog.replace(
                   () => (
                     <DialogSelect
-                      title="Select auth method"
+                      title={t("dialog.provider.select_auth_method")}
                       options={methods.map((x, index) => ({
                         title: x.label,
                         value: index,
@@ -223,7 +223,7 @@ export function createDialogProviderOptions() {
 
 export function DialogProvider() {
   const options = createDialogProviderOptions()
-  return <DialogSelect title="Connect a provider" options={options()} />
+  return <DialogSelect title={t("dialog.provider.connect_title")} options={options()} />
 }
 
 interface AutoMethodProps {
@@ -249,7 +249,7 @@ function AutoMethod(props: AutoMethodProps) {
           const code =
             props.authorization.instructions.match(/[A-Z0-9]{4}-[A-Z0-9]{4,5}/)?.[0] ?? props.authorization.url
           Clipboard.copy(code)
-            .then(() => toast.show({ message: "Copied to clipboard", variant: "info" }))
+            .then(() => toast.show({ message: t("dialog.provider.copied_to_clipboard"), variant: "info" }))
             .catch(toast.error)
         },
       },
@@ -266,7 +266,7 @@ function AutoMethod(props: AutoMethodProps) {
         variant: "error",
         message:
           "name" in result.error && result.error.name === "ProviderAuthOauthCallbackFailed"
-            ? "OAuth authorization failed. Try /connect again."
+            ? t("dialog.provider.oauth_failed")
             : JSON.stringify(result.error),
       })
       dialog.clear()
@@ -291,7 +291,7 @@ function AutoMethod(props: AutoMethodProps) {
         <Link href={props.authorization.url} fg={theme.primary} />
         <text fg={theme.textMuted}>{props.authorization.instructions}</text>
       </box>
-      <text fg={theme.textMuted}>Waiting for authorization...</text>
+      <text fg={theme.textMuted}>{t("dialog.provider.waiting_for_auth")}</text>
       <text fg={theme.text}>
         c <span style={{ fg: theme.textMuted }}>copy</span>
       </text>
@@ -315,7 +315,7 @@ function CodeMethod(props: CodeMethodProps) {
   return (
     <DialogPrompt
       title={props.title}
-      placeholder="Authorization code"
+      placeholder={t("dialog.provider.authorization_code")}
       onConfirm={async (value) => {
         const { error } = await sdk.client.provider.oauth.callback({
           providerID: props.providerID,
@@ -335,7 +335,7 @@ function CodeMethod(props: CodeMethodProps) {
           <text fg={theme.textMuted}>{props.authorization.instructions}</text>
           <Link href={props.authorization.url} fg={theme.primary} />
           <Show when={error()}>
-            <text fg={theme.error}>Invalid code</text>
+            <text fg={theme.error}>{t("dialog.provider.invalid_code")}</text>
           </Show>
         </box>
       )}
@@ -359,28 +359,26 @@ function ApiMethod(props: ApiMethodProps) {
   return (
     <DialogPrompt
       title={props.title}
-      placeholder="API key"
+      placeholder={t("dialog.provider.api_key")}
       description={
         {
           opencode: (
             <box gap={1}>
               <text fg={theme.textMuted}>
-                OpenCode Zen gives you access to all the best coding models at the cheapest prices with a single API
-                key.
+                {t("dialog.provider.zen_description")}
               </text>
               <text fg={theme.text}>
-                Go to <span style={{ fg: theme.primary }}>https://opencode.ai/zen</span> to get a key
+                {t("dialog.provider.zen_cta")} <span style={{ fg: theme.primary }}>https://opencode.ai/zen</span> {t("dialog.provider.zen_cta_action")}
               </text>
             </box>
           ),
           "opencode-go": (
             <box gap={1}>
               <text fg={theme.textMuted}>
-                OpenCode Go is a $10 per month subscription that provides reliable access to popular open coding models
-                with generous usage limits.
+                {t("dialog.provider.go_description")}
               </text>
               <text fg={theme.text}>
-                Go to <span style={{ fg: theme.primary }}>https://opencode.ai/zen</span> and enable OpenCode Go
+                {t("dialog.provider.go_cta")} <span style={{ fg: theme.primary }}>https://opencode.ai/zen</span> {t("dialog.provider.go_cta_action")}
               </text>
             </box>
           ),
@@ -401,7 +399,7 @@ function ApiMethod(props: ApiMethodProps) {
         if (props.custom && !sync.data.provider_next.all.some((provider) => provider.id === props.providerID)) {
           toast.show({
             variant: "info",
-            message: `Saved credential for ${props.providerID}. Configure it in opencode.json to use it.`,
+            message: t("dialog.provider.credential_saved", { id: props.providerID }),
           })
           dialog.clear()
           return

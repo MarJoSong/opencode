@@ -14,6 +14,7 @@ import { LANGUAGE_EXTENSIONS } from "@/lsp/language"
 import { webSearchProviderLabel } from "@/tool/websearch"
 import path from "path"
 import stripAnsi from "strip-ansi"
+import { t } from "@tui/i18n"
 import type {
   SessionMessage,
   SessionMessageAgentSwitched,
@@ -61,8 +62,8 @@ function View(props: { api: TuiPluginApi; sessionID: string }) {
     bindings: [
       {
         key: "escape",
-        desc: "Back to session",
-        group: "Session",
+        desc: t("session.back_to_session"),
+        group: t("group.session"),
         cmd() {
           props.api.route.navigate("session", { sessionID: props.sessionID })
         },
@@ -83,7 +84,7 @@ function View(props: { api: TuiPluginApi; sessionID: string }) {
           >
             <box height={1} />
             <Show when={messages().length === 0}>
-              <MissingData label="Messages" detail="No v2 messages loaded from useSyncV2 yet." />
+              <MissingData label={t("session.messages_label")} detail={t("session.no_messages")} />
             </Show>
             <For each={renderedMessages()}>
               {(message, index) => (
@@ -124,8 +125,8 @@ function View(props: { api: TuiPluginApi; sessionID: string }) {
             </For>
           </scrollbox>
           <MissingData
-            label="Session prompt, permission prompt, question prompt, sidebar"
-            detail="The v2 message endpoint only exposes messages, so these session UI regions cannot be rendered here. Press Esc to return to the live session."
+            label={t("session.missing_ui_label")}
+            detail={t("session.missing_ui_detail")}
           />
         </box>
       </box>
@@ -148,7 +149,7 @@ function MissingData(props: { label: string; detail: string }) {
       flexShrink={0}
     >
       <text fg={theme.text}>
-        <span style={{ bg: theme.warning, fg: theme.background, bold: true }}> MISSING DATA </span> {props.label}
+        <span style={{ bg: theme.warning, fg: theme.background, bold: true }}> {t("session.missing_data")} </span> {props.label}
       </text>
       <text fg={theme.textMuted}>{props.detail}</text>
     </box>
@@ -210,7 +211,7 @@ function ShellMessage(props: { message: SessionMessageShell }) {
   })
   return (
     <BlockTool
-      title="# Shell"
+      title={`# ${t("session.shell")}`}
       spinner={!props.message.time.completed}
       onClick={collapsed().overflow ? () => setExpanded((prev) => !prev) : undefined}
     >
@@ -220,7 +221,7 @@ function ShellMessage(props: { message: SessionMessageShell }) {
           <text fg={theme.text}>{limited()}</text>
         </Show>
         <Show when={collapsed().overflow}>
-          <text fg={theme.textMuted}>{expanded() ? "Click to collapse" : "Click to expand"}</text>
+          <text fg={theme.textMuted}>{expanded() ? t("session.click_to_collapse") : t("session.click_to_expand")}</text>
         </Show>
       </box>
     </BlockTool>
@@ -233,7 +234,7 @@ function CompactionMessage(props: { message: SessionMessageCompaction }) {
     <box
       marginTop={1}
       border={["top"]}
-      title={props.message.reason === "auto" ? " Auto Compaction " : " Compaction "}
+      title={props.message.reason === "auto" ? ` ${t("session.auto_compaction")} ` : ` ${t("session.compaction")} `}
       titleAlignment="center"
       borderColor={theme.borderActive}
       flexShrink={0}
@@ -264,7 +265,7 @@ function AgentSwitchedMessage(props: { message: SessionMessageAgentSwitched }) {
     <box paddingLeft={3} marginTop={1} flexShrink={0}>
       <text>
         <span style={{ fg: local.agent.color(props.message.agent) }}>▣ </span>
-        <span style={{ fg: theme.textMuted }}>Switched agent to </span>
+        <span style={{ fg: theme.textMuted }}>{t("session.switched_agent_to")} </span>
         <span style={{ fg: theme.text }}>{Locale.titlecase(props.message.agent)}</span>
       </text>
     </box>
@@ -281,7 +282,7 @@ function ModelSwitchedMessage(props: { message: SessionMessageModelSwitched }) {
     <box paddingLeft={3} marginTop={1} flexShrink={0}>
       <text>
         <span style={{ fg: theme.secondary }}>◇ </span>
-        <span style={{ fg: theme.textMuted }}>Switched model to </span>
+        <span style={{ fg: theme.textMuted }}>{t("session.switched_model_to")} </span>
         <span style={{ fg: theme.text }}>{model()}</span>
       </text>
     </box>
@@ -289,7 +290,7 @@ function ModelSwitchedMessage(props: { message: SessionMessageModelSwitched }) {
 }
 
 function UnknownMessage(props: { message: SessionMessage }) {
-  return <MissingData label="Unknown message type" detail={JSON.stringify(props.message)} />
+  return <MissingData label={t("session.unknown_message_type")} detail={JSON.stringify(props.message)} />
 }
 
 function AssistantMessage(props: {
@@ -333,7 +334,7 @@ function AssistantMessage(props: {
         )}
       </For>
       <Show when={props.message.content.length === 0}>
-        <MissingData label="Assistant content" detail={`Assistant message ${props.message.id} has no content items.`} />
+        <MissingData label={t("session.assistant_content")} detail={t("session.assistant_no_content", { id: props.message.id })} />
       </Show>
       <Show when={props.message.error}>
         <box
@@ -446,7 +447,7 @@ function ReasoningHeader(props: { toggleable: boolean; open: boolean; done: bool
       <Show when={props.toggleable}>
         <span>{props.open ? "- " : "+ "}</span>
       </Show>
-      <span>{props.done ? "Thought" : "Thinking"}</span>
+      <span>{props.done ? t("session.thought") : t("session.thinking")}</span>
       <Show when={props.title}>
         <span>: </span>
         <span>{props.title}</span>
@@ -542,7 +543,7 @@ function GenericTool(props: ToolProps) {
     <Show
       when={output()}
       fallback={
-        <InlineTool icon="⚙" pending="Writing command..." complete={toolComplete(props.part)} part={props.part}>
+        <InlineTool icon="⚙" pending={t("session.writing_command")} complete={toolComplete(props.part)} part={props.part}>
           {props.part.name} {input(props.input)}
         </InlineTool>
       }
@@ -555,7 +556,7 @@ function GenericTool(props: ToolProps) {
         <box gap={1}>
           <text fg={theme.text}>{limited()}</text>
           <Show when={collapsed().overflow}>
-            <text fg={theme.textMuted}>{expanded() ? "Click to collapse" : "Click to expand"}</text>
+            <text fg={theme.textMuted}>{expanded() ? t("session.click_to_collapse") : t("session.click_to_expand")}</text>
           </Show>
         </box>
       </BlockTool>
@@ -716,7 +717,7 @@ function Bash(props: ToolProps) {
   const dimensions = useTerminalDimensions()
   const output = createMemo(() => stripAnsi((stringValue(props.metadata.output) ?? props.output ?? "").trim()))
   const command = createMemo(() => stringValue(props.input.command) ?? pendingInput(props.part))
-  const title = createMemo(() => `# ${stringValue(props.input.description) ?? "Shell"}`)
+  const title = createMemo(() => `# ${stringValue(props.input.description) ?? t("session.shell")}`)
   const [expanded, setExpanded] = createSignal(false)
   const maxLines = 10
   const maxChars = createMemo(() => maxLines * Math.max(20, dimensions().width - 6))
@@ -738,13 +739,13 @@ function Bash(props: ToolProps) {
             <text fg={theme.text}>$ {command()}</text>
             <text fg={theme.text}>{limited()}</text>
             <Show when={collapsed().overflow}>
-              <text fg={theme.textMuted}>{expanded() ? "Click to collapse" : "Click to expand"}</text>
+              <text fg={theme.textMuted}>{expanded() ? t("session.click_to_collapse") : t("session.click_to_expand")}</text>
             </Show>
           </box>
         </BlockTool>
       </Match>
       <Match when={true}>
-        <InlineTool icon="$" pending="Writing command..." complete={command()} part={props.part}>
+        <InlineTool icon="$" pending={t("session.writing_command")} complete={command()} part={props.part}>
           {command()}
         </InlineTool>
       </Match>
@@ -754,13 +755,13 @@ function Bash(props: ToolProps) {
 
 function Glob(props: ToolProps) {
   return (
-    <InlineTool icon="✱" pending="Finding files..." complete={toolComplete(props.part)} part={props.part}>
-      Glob "{stringValue(props.input.pattern) ?? pendingInput(props.part)}"{" "}
-      <Show when={stringValue(props.input.path)}>in {normalizePath(stringValue(props.input.path))} </Show>
+    <InlineTool icon="✱" pending={t("session.finding_files")} complete={toolComplete(props.part)} part={props.part}>
+      {t("session.glob")} "{stringValue(props.input.pattern) ?? pendingInput(props.part)}"{" "}
+      <Show when={stringValue(props.input.path)}>{t("session.in")} {normalizePath(stringValue(props.input.path))} </Show>
       <Show when={numberValue(props.metadata.count)}>
         {(count) => (
           <>
-            ({count()} {count() === 1 ? "match" : "matches"})
+            ({count()} {count() === 1 ? t("session.match") : t("session.matches")})
           </>
         )}
       </Show>
@@ -777,19 +778,19 @@ function Read(props: ToolProps) {
     <>
       <InlineTool
         icon="→"
-        pending="Reading file..."
+        pending={t("session.reading_file")}
         complete={stringValue(props.input.filePath) ?? pendingInput(props.part)}
         spinner={props.part.state.status === "running"}
         part={props.part}
       >
-        Read {normalizePath(stringValue(props.input.filePath) ?? pendingInput(props.part))}{" "}
+        {t("session.read")} {normalizePath(stringValue(props.input.filePath) ?? pendingInput(props.part))}{" "}
         {input(props.input, ["filePath"])}
       </InlineTool>
       <For each={loaded()}>
         {(filepath) => (
           <box paddingLeft={3} flexShrink={0}>
             <text paddingLeft={3} fg={theme.textMuted}>
-              ↳ Loaded {normalizePath(filepath)}
+              ↳ {t("session.loaded")} {normalizePath(filepath)}
             </text>
           </box>
         )}
@@ -800,13 +801,13 @@ function Read(props: ToolProps) {
 
 function Grep(props: ToolProps) {
   return (
-    <InlineTool icon="✱" pending="Searching content..." complete={toolComplete(props.part)} part={props.part}>
-      Grep "{stringValue(props.input.pattern) ?? pendingInput(props.part)}"{" "}
-      <Show when={stringValue(props.input.path)}>in {normalizePath(stringValue(props.input.path))} </Show>
+    <InlineTool icon="✱" pending={t("session.searching_content")} complete={toolComplete(props.part)} part={props.part}>
+      {t("session.grep")} "{stringValue(props.input.pattern) ?? pendingInput(props.part)}"{" "}
+      <Show when={stringValue(props.input.path)}>{t("session.in")} {normalizePath(stringValue(props.input.path))} </Show>
       <Show when={numberValue(props.metadata.matches)}>
         {(matches) => (
           <>
-            ({matches()} {matches() === 1 ? "match" : "matches"})
+            ({matches()} {matches() === 1 ? t("session.match") : t("session.matches")})
           </>
         )}
       </Show>
@@ -816,8 +817,8 @@ function Grep(props: ToolProps) {
 
 function WebFetch(props: ToolProps) {
   return (
-    <InlineTool icon="%" pending="Fetching from the web..." complete={toolComplete(props.part)} part={props.part}>
-      WebFetch {stringValue(props.input.url) ?? pendingInput(props.part)}
+    <InlineTool icon="%" pending={t("session.fetching_from_web")} complete={toolComplete(props.part)} part={props.part}>
+      {t("session.webfetch")} {stringValue(props.input.url) ?? pendingInput(props.part)}
     </InlineTool>
   )
 }
@@ -825,9 +826,9 @@ function WebFetch(props: ToolProps) {
 function WebSearch(props: ToolProps) {
   const label = createMemo(() => webSearchProviderLabel(props.metadata.provider))
   return (
-    <InlineTool icon="◈" pending="Searching web..." complete={toolComplete(props.part)} part={props.part}>
+    <InlineTool icon="◈" pending={t("session.searching_web")} complete={toolComplete(props.part)} part={props.part}>
       {label()} "{stringValue(props.input.query) ?? pendingInput(props.part)}"{" "}
-      <Show when={numberValue(props.metadata.numResults)}>{(results) => <>({results()} results)</>}</Show>
+      <Show when={numberValue(props.metadata.numResults)}>{(results) => <> ({t("session.results", { count: results() })})</>}</Show>
     </InlineTool>
   )
 }
@@ -839,7 +840,7 @@ function Write(props: ToolProps) {
   return (
     <Switch>
       <Match when={content() && props.part.state.status === "completed"}>
-        <BlockTool title={"# Wrote " + normalizePath(filePath())} part={props.part}>
+        <BlockTool title={`# ${t("session.wrote")} ${normalizePath(filePath())}`} part={props.part}>
           <line_number fg={theme.textMuted} minWidth={3} paddingRight={1}>
             <code
               conceal={false}
@@ -853,8 +854,8 @@ function Write(props: ToolProps) {
         </BlockTool>
       </Match>
       <Match when={true}>
-        <InlineTool icon="←" pending="Preparing write..." complete={filePath()} part={props.part}>
-          Write {normalizePath(filePath())}
+        <InlineTool icon="←" pending={t("session.preparing_write")} complete={filePath()} part={props.part}>
+          {t("session.write")} {normalizePath(filePath())}
         </InlineTool>
       </Match>
     </Switch>
@@ -870,7 +871,7 @@ function Edit(props: ToolProps) {
     <Switch>
       <Match when={diff()}>
         {(diff) => (
-          <BlockTool title={"← Edit " + normalizePath(filePath())} part={props.part}>
+          <BlockTool title={`← ${t("session.edit")} ${normalizePath(filePath())}`} part={props.part}>
             <box paddingLeft={1}>
               <diff
                 diff={diff()}
@@ -897,8 +898,8 @@ function Edit(props: ToolProps) {
         )}
       </Match>
       <Match when={true}>
-        <InlineTool icon="←" pending="Preparing edit..." complete={filePath()} part={props.part}>
-          Edit {normalizePath(filePath())} {input({ replaceAll: props.input.replaceAll })}
+        <InlineTool icon="←" pending={t("session.preparing_edit")} complete={filePath()} part={props.part}>
+          {t("session.edit")} {normalizePath(filePath())} {input({ replaceAll: props.input.replaceAll })}
         </InlineTool>
       </Match>
     </Switch>
@@ -912,10 +913,10 @@ function ApplyPatch(props: ToolProps) {
   const fileTitle = (file: Record<string, unknown>) => {
     const type = stringValue(file.type)
     const relativePath = stringValue(file.relativePath) ?? stringValue(file.filePath) ?? "patch"
-    if (type === "delete") return "# Deleted " + relativePath
-    if (type === "add") return "# Created " + relativePath
-    if (type === "move") return "# Moved " + normalizePath(stringValue(file.filePath)) + " → " + relativePath
-    return "← Patched " + relativePath
+    if (type === "delete") return `# ${t("session.deleted")} ${relativePath}`
+    if (type === "add") return `# ${t("session.created")} ${relativePath}`
+    if (type === "move") return `# ${t("session.moved")} ${normalizePath(stringValue(file.filePath))} → ${relativePath}`
+    return `← ${t("session.patched")} ${relativePath}`
   }
   return (
     <Switch>
@@ -927,7 +928,7 @@ function ApplyPatch(props: ToolProps) {
                 when={stringValue(file.patch)}
                 fallback={
                   <text fg={theme.diffRemoved}>
-                    -{numberValue(file.deletions) ?? 0} line{numberValue(file.deletions) === 1 ? "" : "s"}
+                    -{numberValue(file.deletions) ?? 0} {numberValue(file.deletions) === 1 ? t("session.line") : t("session.lines")}
                   </text>
                 }
               >
@@ -960,8 +961,8 @@ function ApplyPatch(props: ToolProps) {
         </For>
       </Match>
       <Match when={true}>
-        <InlineTool icon="%" pending="Preparing patch..." complete={false} part={props.part}>
-          Patch
+        <InlineTool icon="%" pending={t("session.preparing_patch")} complete={false} part={props.part}>
+          {t("session.patch")}
         </InlineTool>
       </Match>
     </Switch>
@@ -974,7 +975,7 @@ function TodoWrite(props: ToolProps) {
   return (
     <Switch>
       <Match when={todos().length > 0 && props.part.state.status === "completed"}>
-        <BlockTool title="# Todos" part={props.part}>
+        <BlockTool title={`# ${t("session.todos")}`} part={props.part}>
           <box>
             <For each={todos()}>
               {(todo) => (
@@ -987,8 +988,8 @@ function TodoWrite(props: ToolProps) {
         </BlockTool>
       </Match>
       <Match when={true}>
-        <InlineTool icon="⚙" pending="Updating todos..." complete={false} part={props.part}>
-          Updating todos...
+        <InlineTool icon="⚙" pending={t("session.updating_todos")} complete={false} part={props.part}>
+          {t("session.updating_todos")}
         </InlineTool>
       </Match>
     </Switch>
@@ -1004,7 +1005,7 @@ function Question(props: ToolProps) {
   return (
     <Switch>
       <Match when={answers().length > 0}>
-        <BlockTool title="# Questions" part={props.part}>
+        <BlockTool title={`# ${t("session.questions")}`} part={props.part}>
           <box gap={1}>
             <For each={questions()}>
               {(question, index) => (
@@ -1018,8 +1019,8 @@ function Question(props: ToolProps) {
         </BlockTool>
       </Match>
       <Match when={true}>
-        <InlineTool icon="→" pending="Asking questions..." complete={questions().length} part={props.part}>
-          Asked {questions().length} question{questions().length === 1 ? "" : "s"}
+        <InlineTool icon="→" pending={t("session.asking_questions")} complete={questions().length} part={props.part}>
+          {t("session.asked_questions", { count: questions().length })}
         </InlineTool>
       </Match>
     </Switch>
@@ -1028,8 +1029,8 @@ function Question(props: ToolProps) {
 
 function Skill(props: ToolProps) {
   return (
-    <InlineTool icon="→" pending="Loading skill..." complete={toolComplete(props.part)} part={props.part}>
-      Skill "{stringValue(props.input.name) ?? pendingInput(props.part)}"
+    <InlineTool icon="→" pending={t("session.loading_skill")} complete={toolComplete(props.part)} part={props.part}>
+      {t("session.skill")} "{stringValue(props.input.name) ?? pendingInput(props.part)}"
     </InlineTool>
   )
 }
@@ -1038,14 +1039,14 @@ function Task(props: ToolProps) {
   const content = createMemo(() => {
     const description = stringValue(props.input.description)
     if (!description) return pendingInput(props.part)
-    return `${Locale.titlecase(stringValue(props.input.subagent_type) ?? "General")} Task — ${description}`
+    return `${Locale.titlecase(stringValue(props.input.subagent_type) ?? t("session.general"))} ${t("session.task")} — ${description}`
   })
   return (
     <InlineTool
       icon="│"
       spinner={props.part.state.status === "running"}
       complete={toolComplete(props.part)}
-      pending="Delegating..."
+      pending={t("session.delegating")}
       part={props.part}
     >
       {content()}
@@ -1067,7 +1068,7 @@ function Diagnostics(props: { diagnostics: unknown; filePath: string }) {
     <Show when={errors().length}>
       <box>
         <For each={errors()}>
-          {(diagnostic) => <text fg={theme.error}>Error {stringValue(diagnostic.message)}</text>}
+          {(diagnostic) => <text fg={theme.error}>{t("session.error")} {stringValue(diagnostic.message)}</text>}
         </For>
       </box>
     </Show>
@@ -1148,8 +1149,8 @@ function todoIcon(status?: string) {
 }
 
 function formatAnswer(answer: unknown) {
-  if (!Array.isArray(answer)) return "(no answer)"
-  if (answer.length === 0) return "(no answer)"
+  if (!Array.isArray(answer)) return t("session.no_answer")
+  if (answer.length === 0) return t("session.no_answer")
   return answer.filter((item): item is string => typeof item === "string").join(", ")
 }
 
@@ -1160,7 +1161,7 @@ const tui: TuiPlugin = async (api) => {
       render(input) {
         const sessionID = input.params?.sessionID
         if (typeof sessionID !== "string") {
-          return <text fg={api.theme.current.error}>Missing sessionID</text>
+          return <text fg={api.theme.current.error}>{t("session.missing_session_id")}</text>
         }
         return <View api={api} sessionID={sessionID} />
       },
@@ -1171,8 +1172,8 @@ const tui: TuiPlugin = async (api) => {
     commands: [
       {
         name: route,
-        title: "View v2 session messages",
-        category: "Debug",
+        title: t("session.view_v2_messages"),
+        category: t("category.debug"),
         namespace: "palette",
         suggested: () => api.route.current.name === "session",
         enabled: () => api.route.current.name === "session",

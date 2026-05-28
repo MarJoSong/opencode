@@ -3,6 +3,7 @@ import type { ColorInput, RGBA, ScrollBoxRenderable } from "@opentui/core"
 import { Locale } from "@/util/locale"
 import { tint } from "@tui/context/theme"
 import { createEffect, createMemo, For, Match, Switch } from "solid-js"
+import { t } from "@tui/i18n"
 import { buildFileTree, flattenFileTree, type FileTreeItem, type FileTreeRow } from "./diff-viewer-file-tree-utils"
 import { Panel } from "./diff-viewer-ui"
 
@@ -63,7 +64,7 @@ export function DiffViewerFileTree(props: DiffViewerFileTreeProps) {
             <text />
           </Match>
           <Match when={props.files.length === 0}>
-            <text fg={props.theme.text}>No files</text>
+            <text fg={props.theme.text}>{t("diff.no_files")}</text>
           </Match>
           <Match when={props.files.length > 0}>
             <For each={rows()}>

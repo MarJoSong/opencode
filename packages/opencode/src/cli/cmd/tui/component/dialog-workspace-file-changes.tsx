@@ -8,6 +8,7 @@ import { useTheme } from "../context/theme"
 import { useTuiConfig } from "../context/tui-config"
 import { useDialog, type DialogContext } from "../ui/dialog"
 import { getScrollAcceleration } from "../util/scroll"
+import { t } from "@tui/i18n"
 
 const options = ["no", "yes"] as const
 
@@ -67,7 +68,7 @@ export function DialogWorkspaceFileChanges(props: {
     <box gap={1}>
       <box flexDirection="row" justifyContent="space-between" paddingLeft={2} paddingRight={2}>
         <text attributes={TextAttributes.BOLD} fg={theme.text}>
-          File Changes Found
+          {t("dialog.workspace_file_changes.title")}
         </text>
         <text fg={theme.textMuted} onMouseUp={() => dialog.clear()}>
           esc
@@ -103,7 +104,7 @@ export function DialogWorkspaceFileChanges(props: {
       </scrollbox>
       <box paddingLeft={2} paddingRight={2}>
         <text fg={theme.textMuted} wrapMode="word">
-          Do you want to apply these changes after warping?
+          {t("dialog.workspace_file_changes.prompt")}
         </text>
       </box>
       <box flexDirection="row" justifyContent="flex-end" paddingLeft={2} paddingRight={2} paddingBottom={1}>

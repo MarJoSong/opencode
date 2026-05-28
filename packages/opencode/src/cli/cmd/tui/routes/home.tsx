@@ -11,10 +11,11 @@ import { TuiPluginRuntime } from "@/cli/cmd/tui/plugin/runtime"
 import { useEditorContext } from "@tui/context/editor"
 import { useTerminalDimensions } from "@opentui/solid"
 import { useTuiConfig } from "../context/tui-config"
+import { t } from "@tui/i18n"
 
 let once = false
 const placeholder = {
-  normal: ["Fix a TODO in the codebase", "What is the tech stack of this project?", "Fix broken tests"],
+  normal: [t("route.home.placeholder.fix_todo"), t("route.home.placeholder.tech_stack"), t("route.home.placeholder.fix_tests")],
   shell: ["ls -la", "git status", "pwd"],
 }
 

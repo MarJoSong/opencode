@@ -6,6 +6,7 @@ import { useDialog, type DialogContext } from "@tui/ui/dialog"
 import { Link } from "@tui/ui/link"
 import { BgPulse } from "./bg-pulse"
 import { useBindings } from "../keymap"
+import { t } from "@tui/i18n"
 
 const GO_URL = "https://opencode.ai/go"
 const PAD_X = 3
@@ -45,29 +46,29 @@ export function DialogRetryAction(props: DialogRetryActionProps) {
   const [selected, setSelected] = createSignal<"dismiss" | "action">("action")
 
   useBindings(() => ({
-    bindings: [
-      {
-        key: "left",
-        desc: "Previous retry option",
-        group: "Dialog",
-        cmd: () => setSelected((value) => (value === "action" ? "dismiss" : "action")),
-      },
-      {
-        key: "right",
-        desc: "Next retry option",
-        group: "Dialog",
-        cmd: () => setSelected((value) => (value === "action" ? "dismiss" : "action")),
-      },
-      {
-        key: "tab",
-        desc: "Next retry option",
-        group: "Dialog",
-        cmd: () => setSelected((value) => (value === "action" ? "dismiss" : "action")),
-      },
-      {
-        key: "return",
-        desc: "Confirm retry option",
-        group: "Dialog",
+      bindings: [
+        {
+          key: "left",
+          desc: t("dialog.retry_action.prev_desc"),
+          group: "Dialog",
+          cmd: () => setSelected((value) => (value === "action" ? "dismiss" : "action")),
+        },
+        {
+          key: "right",
+          desc: t("dialog.retry_action.next_desc"),
+          group: "Dialog",
+          cmd: () => setSelected((value) => (value === "action" ? "dismiss" : "action")),
+        },
+        {
+          key: "tab",
+          desc: t("dialog.retry_action.next_desc"),
+          group: "Dialog",
+          cmd: () => setSelected((value) => (value === "action" ? "dismiss" : "action")),
+        },
+        {
+          key: "return",
+          desc: t("dialog.retry_action.confirm_desc"),
+          group: "Dialog",
         cmd: () => {
           if (selected() === "action") runAction(props, dialog)
           else dismiss(props, dialog)
@@ -123,7 +124,7 @@ export function DialogRetryAction(props: DialogRetryActionProps) {
               bg={selected() === "dismiss" ? undefined : textBg()}
               attributes={selected() === "dismiss" ? TextAttributes.BOLD : undefined}
             >
-              don't show again
+              {t("dialog.retry_action.dont_show_again")}
             </text>
           </box>
           <box

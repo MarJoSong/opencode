@@ -1,6 +1,7 @@
 import type { Event } from "@opencode-ai/sdk/v2"
 import type { TuiAttentionSoundName, TuiPlugin, TuiPluginApi } from "@opencode-ai/plugin/tui"
 import type { InternalTuiPlugin } from "../../plugin/internal"
+import { t } from "@tui/i18n"
 
 const id = "internal:notifications"
 
@@ -18,12 +19,12 @@ function notify(api: TuiPluginApi, sessionID: string | undefined, message: strin
 }
 
 function sessionErrorMessage(error: SessionError) {
-  if (error?.name === "MessageAbortedError") return "Session aborted"
+  if (error?.name === "MessageAbortedError") return t("notification.session_aborted")
   const data = error?.data
   if (data && typeof data === "object" && "message" in data && data.message === "SSE read timed out") {
-    return "Model stopped responding"
+    return t("notification.model_stopped_responding")
   }
-  return "Session error"
+  return t("notification.session_error")
 }
 
 const tui: TuiPlugin = async (api) => {
@@ -35,7 +36,7 @@ const tui: TuiPlugin = async (api) => {
   api.event.on("question.asked", (event) => {
     if (questions.has(event.properties.id)) return
     questions.add(event.properties.id)
-    notify(api, event.properties.sessionID, "Question needs input", "question")
+    notify(api, event.properties.sessionID, t("notification.question_needs_input"), "question")
   })
 
   api.event.on("question.replied", (event) => {
@@ -49,7 +50,7 @@ const tui: TuiPlugin = async (api) => {
   api.event.on("permission.asked", (event) => {
     if (permissions.has(event.properties.id)) return
     permissions.add(event.properties.id)
-    notify(api, event.properties.sessionID, "Permission needs input", "permission")
+    notify(api, event.properties.sessionID, t("notification.permission_needs_input"), "permission")
   })
 
   api.event.on("permission.replied", (event) => {
@@ -74,7 +75,7 @@ const tui: TuiPlugin = async (api) => {
     }
 
     const session = api.state.session.get(sessionID)
-    notify(api, sessionID, "Session done", session?.parentID ? "subagent_done" : "done")
+    notify(api, sessionID, t("notification.session_done"), session?.parentID ? "subagent_done" : "done")
   })
 
   api.event.on("session.error", (event) => {
