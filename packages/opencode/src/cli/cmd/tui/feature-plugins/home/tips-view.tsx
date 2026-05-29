@@ -163,10 +163,10 @@ export function Tips(props: { api: TuiPluginApi; connected?: boolean }) {
 }
 
 const TIPS: Tip[] = [
-  t("tips.tip_1"),
-  t("tips.tip_2"),
+  (shortcuts) => `${t("tips.tip_1_prefix")} ${commandText("/models", shortcuts.modelList())} ${t("tips.tip_1_suffix")}`,
+  (shortcuts) => `${t("tips.tip_2_prefix")} ${commandText("/themes", shortcuts.themeList())} ${t("tips.tip_2_suffix", { count: themeCount })}`,
   (shortcuts) => press(shortcuts.agentCycle(), t("tips.tip_3")),
-  t("tips.tip_4"),
+  (shortcuts) => `${t("tips.tip_4_prefix")} ${commandText("/sessions", shortcuts.sessionList())} ${t("tips.tip_4_suffix")}`,
   t("tips.tip_5"),
   t("tips.tip_6"),
   t("tips.tip_7"),
